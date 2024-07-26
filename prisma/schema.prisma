@@ -25,3 +25,14 @@ model Event {
   User      User?    @relation(fields: [userId], references: [id])
   userId    String?
 }
+
+enum RequestType {
+  SUM
+  MULTIPLY
+}
+
+model Request {
+  id          String      @id @unique @default(cuid())
+  answer      Int
+  requestType RequestType
+}

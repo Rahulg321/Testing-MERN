@@ -2,6 +2,7 @@
 
 import express from "express";
 import { multiply, sum } from "./math-funs";
+import { db } from "./db";
 
 export const app = express();
 
@@ -15,7 +16,7 @@ app.get("/sum", (req, res) => {
   res.send("called the sum endpoint");
 });
 
-app.post("/sum", (req, res) => {
+app.post("/sum", async (req, res) => {
   const a = Number(req.body.a);
   const b = Number(req.body.b);
 
@@ -36,10 +37,17 @@ app.post("/sum", (req, res) => {
   }
 
   const result = sum(a, b);
-  res.json({ result });
+  await db.request.create({
+    data: {
+      answer: result,
+      requestType: "SUM",
+    },
+  });
+
+  return res.status(200).json({ result });
 });
 
-app.post("/multiply", (req, res) => {
+app.post("/multiply", async (req, res) => {
   const a = Number(req.body.a);
   const b = Number(req.body.b);
 
@@ -52,7 +60,14 @@ app.post("/multiply", (req, res) => {
   }
 
   const result = multiply(a, b);
-  res.json({ result });
+
+  await db.request.create({
+    data: {
+      answer: result,
+      requestType: "MULTIPLY",
+    },
+  });
+  return res.status(200).json({ result });
 });
 
 app.get("/hello", (req, res) => {

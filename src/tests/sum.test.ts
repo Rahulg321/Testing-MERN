@@ -1,7 +1,19 @@
-import { describe, expect, test, it } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { sum } from "../math-funs";
 import request from "supertest";
 import { app } from "..";
+
+vi.mock("../db", () => {
+  return {
+    db: {
+      request: {
+        create: vi.fn(),
+        delete: vi.fn(),
+        update: vi.fn(),
+      },
+    },
+  };
+});
 
 describe("sum", () => {
   test("adds 1 + 2 to equal 3", () => {
@@ -23,10 +35,7 @@ describe("sum", () => {
 
 describe("test http sum post endpoint", () => {
   test("test the post sum endpoint with 1 and 2 expect answer to be 3", async () => {
-    const response = await request(app)
-      .post("/sum")
-      .send({ a: 1, b: 2 })
-      .expect(200);
+    const response = await request(app).post("/sum").send({ a: 1, b: 2 });
 
     expect(response.body.result).toBe(3);
     expect(response.statusCode).toBe(200);

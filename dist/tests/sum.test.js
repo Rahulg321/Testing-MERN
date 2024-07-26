@@ -16,6 +16,17 @@ const vitest_1 = require("vitest");
 const math_funs_1 = require("../math-funs");
 const supertest_1 = __importDefault(require("supertest"));
 const __1 = require("..");
+vitest_1.vi.mock("../db", () => {
+    return {
+        db: {
+            request: {
+                create: vitest_1.vi.fn(),
+                delete: vitest_1.vi.fn(),
+                update: vitest_1.vi.fn(),
+            },
+        },
+    };
+});
 (0, vitest_1.describe)("sum", () => {
     (0, vitest_1.test)("adds 1 + 2 to equal 3", () => {
         (0, vitest_1.expect)((0, math_funs_1.sum)(1, 2)).toBe(3);
@@ -32,10 +43,7 @@ const __1 = require("..");
 });
 (0, vitest_1.describe)("test http sum post endpoint", () => {
     (0, vitest_1.test)("test the post sum endpoint with 1 and 2 expect answer to be 3", () => __awaiter(void 0, void 0, void 0, function* () {
-        const response = yield (0, supertest_1.default)(__1.app)
-            .post("/sum")
-            .send({ a: 1, b: 2 })
-            .expect(200);
+        const response = yield (0, supertest_1.default)(__1.app).post("/sum").send({ a: 1, b: 2 });
         (0, vitest_1.expect)(response.body.result).toBe(3);
         (0, vitest_1.expect)(response.statusCode).toBe(200);
     }));
