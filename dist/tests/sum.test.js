@@ -40,7 +40,15 @@ vitest_1.vi.mock("../db");
             answer: 3,
             requestType: "SUM",
         });
+        vitest_1.vi.spyOn(db_1.db.request, "create");
         const response = yield (0, supertest_1.default)(__1.app).post("/sum").send({ a: 1, b: 2 });
+        // by doing this we are making sure that we pass the correct values to the db call in our endpoint
+        (0, vitest_1.expect)(db_1.db.request.create).toHaveBeenCalledWith({
+            data: {
+                answer: 3,
+                requestType: "SUM",
+            },
+        });
         (0, vitest_1.expect)(response.body.result).toBe(3);
         (0, vitest_1.expect)(response.body.id).toBe("somevalueid");
         (0, vitest_1.expect)(response.statusCode).toBe(200);

@@ -33,7 +33,17 @@ describe("test http sum post endpoint", () => {
       requestType: "SUM",
     });
 
+    vi.spyOn(db.request, "create");
+
     const response = await request(app).post("/sum").send({ a: 1, b: 2 });
+
+    // by doing this we are making sure that we pass the correct values to the db call in our endpoint
+    expect(db.request.create).toHaveBeenCalledWith({
+      data: {
+        answer: 3,
+        requestType: "SUM",
+      },
+    });
 
     expect(response.body.result).toBe(3);
     expect(response.body.id).toBe("somevalueid");
