@@ -1,11 +1,11 @@
 // write a simple express server
 
 import express, { Express } from "express";
-import { multiply, sum } from "./math-funs";
+import { divide, multiply, sum } from "./math-funs";
 import { db } from "./db";
 import axios from "axios";
 import { z } from "zod";
-import { multiplySchema, sumSchema } from "./schemas";
+import { divideSchema, multiplySchema, sumSchema } from "./schemas";
 
 export const app: Express = express();
 
@@ -142,4 +142,30 @@ app.post("/multiply", async (req, res) => {
     },
   });
   return res.status(200).json({ result });
+});
+
+app.post("/zod-divide", async (req, res) => {
+  const validatedFields = divideSchema.safeParse(req.body);
+  console.log("Validation result:", validatedFields); // Add this line
+  if (!validatedFields.success) {
+    return res.status(400).json({
+      message: "Invalid input",
+      errors: validatedFields.error.errors,
+    });
+  }
+
+  const { a, b } = validatedFields.data;
+
+  const result = divide(a, b);
+
+  const response = await db.request.create({
+    data: {
+      answer: result,
+      requestType: "DIVIDE",
+    },
+  });
+
+  return res
+    .status(200)
+    .json({ result, id: response.id, type: response.requestType });
 });
