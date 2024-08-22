@@ -24,4 +24,12 @@ describe("test http multiply post endpoint", () => {
     expect(response.body.result).toBe(6);
     expect(response.statusCode).toBe(200);
   });
+
+  test("test the zod multiply endpoint with bad inputs expecting it to fail", async () => {
+    const response = await request(app)
+      .post("/zod-multiply")
+      .send({ a: 111111, b: 111111 });
+
+    expect(response.statusCode).toBe(411);
+  });
 });

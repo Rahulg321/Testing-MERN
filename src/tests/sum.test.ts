@@ -41,6 +41,14 @@ describe("test http sum post endpoint", () => {
     expect(response.statusCode).toBe(200);
   });
 
+  test("test the zod sum endpoint with bad inputs expecting it to fail", async () => {
+    const response = await request(app)
+      .post("/zod-sum")
+      .send({ a: 111111, b: 111111 });
+
+    expect(response.statusCode).toBe(411);
+  });
+
   test("test the post sum endpoint with non integer values", async () => {
     const response = await request(app)
       .post("/sum")

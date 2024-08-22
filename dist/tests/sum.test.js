@@ -47,6 +47,12 @@ vitest_1.vi.mock("../db", () => {
         (0, vitest_1.expect)(response.body.result).toBe(3);
         (0, vitest_1.expect)(response.statusCode).toBe(200);
     }));
+    (0, vitest_1.test)("test the zod sum endpoint with bad inputs expecting it to fail", () => __awaiter(void 0, void 0, void 0, function* () {
+        const response = yield (0, supertest_1.default)(__1.app)
+            .post("/zod-sum")
+            .send({ a: 111111, b: 111111 });
+        (0, vitest_1.expect)(response.statusCode).toBe(411);
+    }));
     (0, vitest_1.test)("test the post sum endpoint with non integer values", () => __awaiter(void 0, void 0, void 0, function* () {
         const response = yield (0, supertest_1.default)(__1.app)
             .post("/sum")

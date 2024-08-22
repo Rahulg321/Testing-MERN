@@ -17,14 +17,51 @@ exports.app = void 0;
 const express_1 = __importDefault(require("express"));
 const math_funs_1 = require("./math-funs");
 const db_1 = require("./db");
+const zod_1 = require("zod");
 exports.app = (0, express_1.default)();
+const sumSchema = zod_1.z.object({
+    a: zod_1.z.number().min(1).max(1000),
+    b: zod_1.z.number().min(1).max(1000),
+});
+const multiplySchema = zod_1.z.object({
+    a: zod_1.z.number().min(1).max(1000),
+    b: zod_1.z.number().min(1).max(1000),
+});
 exports.app.use(express_1.default.json());
 exports.app.get("/", (req, res) => {
     res.send("Hello World!");
 });
+exports.app.get("/home", (req, res) => {
+    console.log("home route called");
+    res.send("you accessed the home route");
+});
 exports.app.get("/sum", (req, res) => {
     res.send("called the sum endpoint");
 });
+exports.app.post("/zod-sum", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const parsedSchema = sumSchema.safeParse(req.body);
+    if (!parsedSchema.success) {
+        return res.status(411).json({
+            message: "incorrect inputs",
+        });
+    }
+    console.log("parsed schema is", parsedSchema);
+    const { a, b } = parsedSchema.data;
+    const result = (0, math_funs_1.sum)(a, b);
+    return res.status(200).json({ result });
+}));
+exports.app.post("/zod-multiply", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const parsedSchema = multiplySchema.safeParse(req.body);
+    if (!parsedSchema.success) {
+        return res.status(411).json({
+            message: "incorrect inputs",
+        });
+    }
+    console.log("parsed schema is", parsedSchema);
+    const { a, b } = parsedSchema.data;
+    const result = (0, math_funs_1.multiply)(a, b);
+    return res.status(200).json({ result });
+}));
 exports.app.post("/sum", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const a = Number(req.body.a);
     const b = Number(req.body.b);
