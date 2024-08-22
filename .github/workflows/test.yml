@@ -19,9 +19,7 @@ jobs:
           node-version: 20
 
       - name: Install dependencies
-        working-directory: Testing-MERN
         run: npm install && npx prisma generate
 
       - name: Run tests
-        working-directory: Testing-MERN
         run: npm run test
