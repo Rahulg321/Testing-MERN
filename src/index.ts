@@ -5,33 +5,11 @@ import { multiply, sum } from "./math-funs";
 import { db } from "./db";
 import axios from "axios";
 import { z } from "zod";
+import { multiplySchema, sumSchema } from "./schemas";
 
 export const app: Express = express();
 
-const sumSchema = z.object({
-  a: z.number().min(1).max(1000),
-  b: z.number().min(1).max(1000),
-});
-
-const multiplySchema = z.object({
-  a: z.number().min(1).max(1000),
-  b: z.number().min(1).max(1000),
-});
-
 app.use(express.json());
-
-app.get("/", (req, res) => {
-  res.send("Hello World!");
-});
-
-app.get("/home", (req, res) => {
-  console.log("home route called");
-  res.send("you accessed the home route");
-});
-
-app.get("/sum", (req, res) => {
-  res.send("called the sum endpoint");
-});
 
 app.post("/zod-sum", async (req, res) => {
   try {
@@ -164,8 +142,4 @@ app.post("/multiply", async (req, res) => {
     },
   });
   return res.status(200).json({ result });
-});
-
-app.get("/hello", (req, res) => {
-  res.send("Hello World!");
 });
