@@ -16,17 +16,8 @@ const vitest_1 = require("vitest");
 const math_funs_1 = require("../math-funs");
 const supertest_1 = __importDefault(require("supertest"));
 const __1 = require("..");
-vitest_1.vi.mock("../db", () => {
-    return {
-        db: {
-            request: {
-                create: vitest_1.vi.fn(),
-                delete: vitest_1.vi.fn(),
-                update: vitest_1.vi.fn(),
-            },
-        },
-    };
-});
+const db_1 = require("../__mocks__/db");
+vitest_1.vi.mock("../db");
 (0, vitest_1.describe)("sum", () => {
     (0, vitest_1.test)("adds 1 + 2 to equal 3", () => {
         (0, vitest_1.expect)((0, math_funs_1.sum)(1, 2)).toBe(3);
@@ -43,15 +34,29 @@ vitest_1.vi.mock("../db", () => {
 });
 (0, vitest_1.describe)("test http sum post endpoint", () => {
     (0, vitest_1.test)("test the post sum endpoint with 1 and 2 expect answer to be 3", () => __awaiter(void 0, void 0, void 0, function* () {
+        // we are mocking the return value from db call in the case when the endpoint returns the value
+        db_1.db.request.create.mockResolvedValue({
+            id: "somevalueid",
+            answer: 3,
+            requestType: "SUM",
+        });
         const response = yield (0, supertest_1.default)(__1.app).post("/sum").send({ a: 1, b: 2 });
         (0, vitest_1.expect)(response.body.result).toBe(3);
+        (0, vitest_1.expect)(response.body.id).toBe("somevalueid");
         (0, vitest_1.expect)(response.statusCode).toBe(200);
+    }));
+    (0, vitest_1.test)("test the zod sum endpoint with correct inputs expecting it to pass", () => __awaiter(void 0, void 0, void 0, function* () {
+        const response = yield (0, supertest_1.default)(__1.app).post("/zod-sum").send({ a: 1, b: 2 });
+        console.log("Response body:", response.body);
+        console.log("Response status:", response.statusCode);
+        (0, vitest_1.expect)(response.statusCode).toBe(200);
+        (0, vitest_1.expect)(response.body.result).toBe(3);
     }));
     (0, vitest_1.test)("test the zod sum endpoint with bad inputs expecting it to fail", () => __awaiter(void 0, void 0, void 0, function* () {
         const response = yield (0, supertest_1.default)(__1.app)
             .post("/zod-sum")
             .send({ a: 111111, b: 111111 });
-        (0, vitest_1.expect)(response.statusCode).toBe(411);
+        (0, vitest_1.expect)(response.statusCode).toBe(400);
     }));
     (0, vitest_1.test)("test the post sum endpoint with non integer values", () => __awaiter(void 0, void 0, void 0, function* () {
         const response = yield (0, supertest_1.default)(__1.app)

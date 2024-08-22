@@ -31,6 +31,13 @@ enum RequestType {
   MULTIPLY
 }
 
+model Sum {
+  id     Int @id @default(autoincrement())
+  a      Int
+  b      Int
+  result Int
+}
+
 model Request {
   id          String      @id @unique @default(cuid())
   answer      Int

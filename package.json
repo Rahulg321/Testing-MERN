@@ -30,6 +30,7 @@
     "@jest/globals": "^29.7.0",
     "nodemon": "^3.1.4",
     "supertest": "^7.0.0",
-    "ts-jest": "^29.2.3"
+    "ts-jest": "^29.2.3",
+    "vitest-mock-extended": "^2.0.0"
   }
 }

@@ -34,39 +34,82 @@ app.get("/sum", (req, res) => {
 });
 
 app.post("/zod-sum", async (req, res) => {
-  const parsedSchema = sumSchema.safeParse(req.body);
+  try {
+    const parsedSchema = sumSchema.safeParse(req.body);
 
-  if (!parsedSchema.success) {
-    return res.status(411).json({
-      message: "incorrect inputs",
+    if (!parsedSchema.success) {
+      return res.status(400).json({
+        message: "Invalid input: " + parsedSchema.error.message,
+      });
+    }
+
+    const { a, b } = parsedSchema.data;
+    const result = sum(a, b);
+
+    await db.sum.create({
+      data: { a, b, result },
+    });
+
+    await db.request.create({
+      data: {
+        answer: result,
+        requestType: "SUM",
+      },
+    });
+
+    return res.status(200).json({ result });
+  } catch (error) {
+    console.error("Error in /zod-sum endpoint:", error);
+
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({
+        message: "Invalid input",
+        errors: error.errors,
+      });
+    }
+
+    return res.status(500).json({
+      message: "Internal server error",
     });
   }
-
-  console.log("parsed schema is", parsedSchema);
-
-  const { a, b } = parsedSchema.data;
-
-  const result = sum(a, b);
-
-  return res.status(200).json({ result });
 });
 
 app.post("/zod-multiply", async (req, res) => {
-  const parsedSchema = multiplySchema.safeParse(req.body);
+  try {
+    const parsedSchema = multiplySchema.safeParse(req.body);
 
-  if (!parsedSchema.success) {
-    return res.status(411).json({
-      message: "incorrect inputs",
+    if (!parsedSchema.success) {
+      return res.status(400).json({
+        message: "Invalid input",
+        errors: parsedSchema.error.errors,
+      });
+    }
+
+    const { a, b } = parsedSchema.data;
+
+    const result = multiply(a, b);
+    await db.request.create({
+      data: {
+        answer: result,
+        requestType: "MULTIPLY",
+      },
+    });
+
+    return res.status(200).json({ result });
+  } catch (error) {
+    console.error("Error in /zod-multiply endpoint:", error);
+
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({
+        message: "Invalid input",
+        errors: error.errors,
+      });
+    }
+
+    return res.status(500).json({
+      message: "Internal server error",
     });
   }
-
-  console.log("parsed schema is", parsedSchema);
-
-  const { a, b } = parsedSchema.data;
-
-  const result = multiply(a, b);
-
-  return res.status(200).json({ result });
 });
 
 app.post("/sum", async (req, res) => {
@@ -90,14 +133,14 @@ app.post("/sum", async (req, res) => {
   }
 
   const result = sum(a, b);
-  await db.request.create({
+  const response = await db.request.create({
     data: {
       answer: result,
       requestType: "SUM",
     },
   });
 
-  return res.status(200).json({ result });
+  return res.status(200).json({ result, id: response.id });
 });
 
 app.post("/multiply", async (req, res) => {
