@@ -130,3 +130,24 @@ exports.app.post("/multiply", (req, res) => __awaiter(void 0, void 0, void 0, fu
     });
     return res.status(200).json({ result });
 }));
+exports.app.post("/zod-divide", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const validatedFields = schemas_1.divideSchema.safeParse(req.body);
+    console.log("Validation result:", validatedFields); // Add this line
+    if (!validatedFields.success) {
+        return res.status(400).json({
+            message: "Invalid input",
+            errors: validatedFields.error.errors,
+        });
+    }
+    const { a, b } = validatedFields.data;
+    const result = (0, math_funs_1.divide)(a, b);
+    const response = yield db_1.db.request.create({
+        data: {
+            answer: result,
+            requestType: "DIVIDE",
+        },
+    });
+    return res
+        .status(200)
+        .json({ result, id: response.id, type: response.requestType });
+}));

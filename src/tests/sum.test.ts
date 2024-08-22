@@ -33,6 +33,7 @@ describe("test http sum post endpoint", () => {
       requestType: "SUM",
     });
 
+    // spy on request.create function so that you can monitor the correct arguements are being passed
     vi.spyOn(db.request, "create");
 
     const response = await request(app).post("/sum").send({ a: 1, b: 2 });
